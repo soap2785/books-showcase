@@ -1,0 +1,15 @@
+- name: Deploy Services
+  hosts: all
+  strategy: free
+  gather_facts: no
+  become: true
+  tasks:
+    - name: Install Docker and Compose from Debian repos
+      ansible.builtin.apt:
+        name:
+          - docker.io
+          - docker-compose-v2
+          - curl
+        state: present
+        update_cache: yes
+        lock_timeout: 600
