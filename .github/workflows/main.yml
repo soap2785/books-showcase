@@ -66,27 +66,27 @@ jobs:
       - name: Prepare Docker
         uses: dawidd6/action-ansible-playbook@v2
         with:
-          playbook: ./ansible/docker.yml
+          playbook: ansible/docker.yml
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           inventory: ${{ secrets.ANSIBLE_INVENTORY }}
 
       - name: Prepare System
         uses: dawidd6/action-ansible-playbook@v2
         with:
-          playbook: ./ansible/system.yml
+          playbook: ansible/system.yml
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           inventory: ${{ secrets.ANSIBLE_INVENTORY }}
       
       - name: Create Certificates
         uses: dawidd6/action-ansible-playbook@v2
         with:
-          playbook: ./ansible/certificates.yml
+          playbook: ansible/certificates.yml
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           inventory: ${{ secrets.ANSIBLE_INVENTORY }}
 
       - name: Manage Migrations
         uses: dawidd6/action-ansible-playbook@v2
         with:
-          playbook: ./ansible/migrations.yml
+          playbook: ansible/migrations.yml
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           inventory: ${{ secrets.ANSIBLE_INVENTORY }}
