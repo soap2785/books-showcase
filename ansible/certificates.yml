@@ -1,0 +1,25 @@
+- name: Create Certificates
+  hosts: api_test, api_prod
+  pre_tasks:
+    - shell: |
+        containers=$(docker ps -q --filter "publish=80")
+        if [ ! -z "$containers" ]; then
+          docker stop $containers
+        fi
+      register: stop_result
+      changed_when: stop_result.stdout != ""
+  tasks:
+    - name: Install certbot
+      apt:
+        name: certbot
+        state: present
+
+    - name: Create certificates
+      shell: >
+        certbot certonly --standalone
+        --non-interactive
+        --agree-tos
+        --email {{ cert_email }}
+        -d {{ domain }} -d www.{{ domain }}
+      args:
+        creates: "/etc/letsencrypt/live/{{ domain }}/fullchain.pem"

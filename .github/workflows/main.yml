@@ -1,0 +1,88 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ staging ]
+  pull_request:
+    branches: [ staging ]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: Install Ruff
+        run: pip install ruff
+
+      - name: Run Ruff Check
+        run: ruff check .
+
+      - name: Run Ruff Format Check
+        run: ruff format --check .
+
+  build:
+    needs: lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push Backend
+        uses: docker/build-push-action@v5
+        with:
+          context: ./backend
+          push: true
+          tags: ghcr.io/${{ github.repository }}/backend:${{ github.sha }}
+
+      - name: Build and push Frontend
+        uses: docker/build-push-action@v5
+        with:
+          context: ./frontend
+          push: true
+          tags: ghcr.io/${{ github.repository }}/frontend:${{ github.sha }}
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Prepare Docker
+        uses: dawidd6/action-ansible-playbook@v2
+        with:
+          playbook: ansible/docker.yml
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          inventory: ${{ secrets.ANSIBLE_INVENTORY }}
+
+      - name: Prepare System
+        uses: dawidd6/action-ansible-playbook@v2
+        with:
+          playbook: ansible/system.yml
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          inventory: ${{ secrets.ANSIBLE_INVENTORY }}
+      
+      - name: Create Certificates
+        uses: dawidd6/action-ansible-playbook@v2
+        with:
+          playbook: ansible/certificates.yml
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          inventory: ${{ secrets.ANSIBLE_INVENTORY }}
+
+      - name: Manage Migrations
+        uses: dawidd6/action-ansible-playbook@v2
+        with:
+          playbook: ansible/migrations.yml
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          inventory: ${{ secrets.ANSIBLE_INVENTORY }}

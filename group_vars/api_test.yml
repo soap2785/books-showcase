@@ -1,0 +1,5 @@
+---
+domain: "testovoe.docreporttestnet.ru"
+db_host: "db"
+db_user: "test_db_user"
+db_name: "test_db"

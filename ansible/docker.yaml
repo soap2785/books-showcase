@@ -1,8 +1,5 @@
-- name: Deploy Services
+- name: Prepare docker
   hosts: all
-  strategy: free
-  gather_facts: no
-  become: true
   tasks:
     - name: Install Docker and Compose from Debian repos
       ansible.builtin.apt:

@@ -15,6 +15,8 @@ class Material(Base):
         CheckConstraint("rating >= 0 AND rating <= 5"), 
         default=0.0
     )
+    title: Mapped[str] = mapped_column(String(30))
+    description: Mapped[str] = mapped_column(String(700))
     genre: Mapped[str] = mapped_column(String(30))
     is_mature_content: Mapped[bool] = mapped_column(Boolean, default=False)
     file: Mapped[str] = mapped_column(String(30))

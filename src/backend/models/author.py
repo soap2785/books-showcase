@@ -9,8 +9,10 @@ from .audiobook import Audiobook
 class Author(User):
     __tablename__ = "authors"
 
+    fullname: Mapped[str] = mapped_column(String(63))
+    description: Mapped[str] = mapped_column(String(700))
     published_books: Mapped[list["Book"]] = relationship(back_populates="author_rel")
-    published_audiobboks: Mapped[list["Audiobook"]] = relationship(back_populates="author_rel")
+    published_audiobooks: Mapped[list["Audiobook"]] = relationship(back_populates="author_rel")
     rating: Mapped[float] = mapped_column(
         Float, 
         CheckConstraint("rating >= 0 AND rating <= 5"), 

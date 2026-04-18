@@ -11,7 +11,7 @@ class User(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     username: Mapped[str] = mapped_column(String(50), unique=True)
-    email: Mapped[str] = mapped_column(EncryptedString(320))
+    email: Mapped[str] = mapped_column(EncryptedString(320), nullable=True)
     _password_hash: Mapped[str] = mapped_column(String(255))
 
     type: Mapped[str] = mapped_column(String(20))

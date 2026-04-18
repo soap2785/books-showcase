@@ -1,0 +1,48 @@
+- name: Make and apply migrations
+  hosts: api_test, api_prod
+  tasks:
+    - name: Autogenerate hot migration
+      community.docker.docker_container_exec:
+        container: api
+        command: alembic revision --autogenerate -m "Hot-generated migration"
+        chdir: /app
+      register: migration_output
+
+    - name: Wait for PostgreSQL to be ready
+      community.docker.docker_container_exec:
+        container: "{{ db_host }}"
+        command: psql -U {{ db_user }} -d {{ db_name }} -c "SELECT 1"
+      register: db_check
+      until: db_check.rc == 0
+      retries: 20
+      delay: 5
+
+    - name: Check if PGCrypto extension exists
+      community.docker.docker_container_exec:
+        container: "{{ db_host }}"
+        command: psql -U {{ db_user }} -d {{ db_name }} -tAc "SELECT 1 FROM pg_extension WHERE extname='pgcrypto'"
+      register: pgcrypto_check
+      changed_when: false
+
+    - name: Create PGCrypto Extension
+      community.docker.docker_container_exec:
+        container: "{{ db_host }}"
+        command: >
+          psql -U {{ db_user }} -d {{ db_name }} 
+          -c "CREATE EXTENSION IF NOT EXISTS pgcrypto;"
+      register: pgcrypto_result
+      changed_when: "'CREATE EXTENSION' in pgcrypto_result.stdout"
+      when:
+        - pgcrypto_check.stdout is defined
+        - pgcrypto_check.stdout != "1"
+
+    - name: Apply migrations
+      community.docker.docker_container_exec:
+        container: api
+        command: alembic upgrade head
+        chdir: /app
+      register: upgrade_output
+
+    - name: Upgrade debug
+      debug:
+        var: upgrade_output.stdout

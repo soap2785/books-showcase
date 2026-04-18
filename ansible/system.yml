@@ -1,0 +1,31 @@
+- name: Prepare System
+  hosts: all
+  become: true
+  tasks:
+    - name: Update cache and upgrade packages
+      apt:
+        update_cache: yes
+        upgrade: dist
+
+    - name: Install required packages
+      apt:
+        name:
+          - python3
+          - net-tools
+          - git
+          - gcc
+          - build-essential
+        state: present
+
+    - name: Configure SSH Password Authentication
+      lineinfile:
+        path: /etc/ssh/sshd_config
+        regexp: '^#?PasswordAuthentication'
+        line: 'PasswordAuthentication yes'
+      notify: Restart SSH
+
+  handlers:
+    - name: Restart SSH
+      service:
+        name: ssh
+        state: restarted

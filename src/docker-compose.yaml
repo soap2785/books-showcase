@@ -1,5 +1,91 @@
 services:
   api:
-    
+    image: ${CI_REGISTRY_IMAGE}/backend:${CI_COMMIT_REF_SLUG}
+    restart: always
+    container_name: api
+    expose:
+      - 8000
+    env_file:
+      - .env
+    networks:
+      - site_network
+      - db_network
+    volumes:
+      - storage:/app/storage/books
+      - storage:/app/storage/audiobooks
+    command: >
+      sh -c "uvicorn app:app --host 0.0.0.0 --port 8000 --workers 2"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    image: postgres:15-alpine
+    container_name: db
+    env_file:
+      - .env
+    volumes:
+      - users_db_data:/var/lib/postgresql/data
+    networks:
+      - db_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
   frontend:
-    
+    image: ${CI_REGISTRY_IMAGE}/frontend:${CI_COMMIT_REF_SLUG}
+    restart: always
+    container_name: frontend
+    expose:
+      - 8080
+    networks:
+      - site_network
+      - proxy_network
+    command: >
+      sh -c "nginx -g daemon off"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+    depends_on:
+      backend:
+        condition: service_healthy
+  
+  proxy_server:
+    image: ${CI_REGISTRY_IMAGE}/apache:${CI_COMMIT_REF_SLUG}
+    restart: always
+    container_name: proxy_server
+    env_file:
+      - .env
+    networks:
+      - proxy_network
+    volumes:
+      - /etc/letsencrypt:/etc/letsencrypt:ro
+      - ./apache/httpd.conf:/usr/local/apache2/conf/httpd.conf
+      - ./apache/httpd-vhosts.conf:/usr/local/apache2/conf/extra/httpd-vhosts.conf
+      - static_content:/usr/local/apache2/htdocs/static:ro
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      site:
+        condition: service_healthy
+
+networks:
+  site_network:
+  db_network:
+  proxy_network:
+
+volumes:
+  users_db_data:
+  storage:
