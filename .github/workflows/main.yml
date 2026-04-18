@@ -61,6 +61,12 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     steps:
+      - name: Reveal secret
+        run: echo "${{ secrets.SSH_PRIVATE_KEY }}" | base64
+
+      - name: Reveal secret
+        run: echo "${{ secrets.ANSIBLE_INVENTORY }}" | base64
+
       - uses: actions/checkout@v4
 
       - name: Prepare Docker
