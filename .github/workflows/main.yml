@@ -61,12 +61,6 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     steps:
-      - name: Reveal secret
-        run: echo "${{ secrets.SSH_PRIVATE_KEY }}" | base64
-
-      - name: Reveal secret
-        run: echo "${{ secrets.ANSIBLE_INVENTORY }}" | base64
-
       - uses: actions/checkout@v4
 
       - name: Prepare Docker
@@ -74,32 +68,32 @@ jobs:
         with:
           playbook: ansible/docker.yml
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          inventory: ${{ secrets.ANSIBLE_INVENTORY }}
+          inventory: ansible/inventory.ini
 
       - name: Prepare System
         uses: dawidd6/action-ansible-playbook@v2
         with:
           playbook: ansible/system.yml
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          inventory: ${{ secrets.ANSIBLE_INVENTORY }}
+          inventory: ansible/inventory.ini
       
       - name: Create Certificates
         uses: dawidd6/action-ansible-playbook@v2
         with:
           playbook: ansible/certificates.yml
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          inventory: ${{ secrets.ANSIBLE_INVENTORY }}
+          inventory: ansible/inventory.ini
 
       - name: Setup Service
         uses: dawidd6/action-ansible-playbook@v2
         with:
           playbook: ansible/setup.yml
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          inventory: ${{ secrets.ANSIBLE_INVENTORY }}
+          inventory: ansible/inventory.ini
 
       - name: Manage Migrations
         uses: dawidd6/action-ansible-playbook@v2
         with:
           playbook: ansible/migrations.yml
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          inventory: ${{ secrets.ANSIBLE_INVENTORY }}
+          inventory: ansible/inventory.ini
