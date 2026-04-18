@@ -17,8 +17,7 @@ async def delete_audiobook(audiobook_id: int, db: AsyncSession = Depends(get_db)
     audiobook = await db.get(Audiobook, audiobook_id)
     if not audiobook:
         raise HTTPException(
-            status.HTTP_404_NOT_FOUND,
-            f"Audiobook with id {audiobook_id} not found"
+            status.HTTP_404_NOT_FOUND, f"Audiobook with id {audiobook_id} not found"
         )
 
     file_path = join("storage/books", audiobook.file)
@@ -29,7 +28,7 @@ async def delete_audiobook(audiobook_id: int, db: AsyncSession = Depends(get_db)
             rm(file_path)
 
         await db.commit()
-        
+
     except Exception as e:
         await db.rollback()
         raise HTTPException(500, f"Ошибка при удалении: {str(e)}")

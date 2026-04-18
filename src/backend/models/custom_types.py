@@ -8,6 +8,7 @@ cipher = Fernet(CRYPTO_KEY)
 
 class EncryptedString(TypeDecorator):
     """Type that encryptes data before commit."""
+
     impl = String
 
     def process_bind_param(self, value, dialect):

@@ -1,14 +1,11 @@
 from fastapi import status, Depends
 from fastapi.exceptions import HTTPException
-from fastapi.responses import JSONResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 from sqlalchemy import select
 
-from models.audiobook import Audiobook
 from models.author import Author
 from db.database import get_db
-from schemas.book import AddBook
 
 from . import audiobooks_router
 

@@ -18,7 +18,9 @@ class ReaderAssociation(Base):
 class Reader(User):
     __tablename__ = "readers"
 
-    actions: Mapped[list["ReaderAssociation"]] = relationship(cascade="all, delete-orphan")
+    actions: Mapped[list["ReaderAssociation"]] = relationship(
+        cascade="all, delete-orphan"
+    )
 
     type: Mapped[str] = mapped_column(String(20))
 

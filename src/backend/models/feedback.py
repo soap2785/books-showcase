@@ -16,8 +16,6 @@ class Feedback(Base):
     book: Mapped[Optional[int]] = mapped_column(ForeignKey("books.id"))
     audiobook: Mapped[Optional[int]] = mapped_column(ForeignKey("audiobooks.id"))
     rating: Mapped[float] = mapped_column(
-        Float, 
-        CheckConstraint("rating >= 0 AND rating <= 5"), 
-        default=0.0
+        Float, CheckConstraint("rating >= 0 AND rating <= 5"), default=0.0
     )
     comment: Mapped[Optional[str]] = mapped_column(String(500))

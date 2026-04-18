@@ -1,16 +1,10 @@
-from os.path import join
-from uuid import uuid4
-
-from aiofiles import open
 from fastapi import status, Depends
 from fastapi.exceptions import HTTPException
 from fastapi.responses import JSONResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from models.author import Author
-from models.user import User
 from db.database import get_db
-from schemas.author import CreateAuthor
 
 from . import authors_router
 
@@ -20,8 +14,7 @@ async def delete_author(author_id: int, db: AsyncSession = Depends(get_db)):
     author = await db.get(Author, author_id)
     if not author:
         raise HTTPException(
-            status.HTTP_404_NOT_FOUND,
-            f"Author with id {author_id} not found"
+            status.HTTP_404_NOT_FOUND, f"Author with id {author_id} not found"
         )
 
     await db.delete(author)
