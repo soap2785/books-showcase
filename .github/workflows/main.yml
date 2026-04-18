@@ -84,6 +84,13 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           inventory: ${{ secrets.ANSIBLE_INVENTORY }}
 
+      - name: Setup Service
+        uses: dawidd6/action-ansible-playbook@v2
+        with:
+          playbook: ansible/setup.yml
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          inventory: ${{ secrets.ANSIBLE_INVENTORY }}
+
       - name: Manage Migrations
         uses: dawidd6/action-ansible-playbook@v2
         with:
