@@ -62,24 +62,21 @@ services:
         condition: service_healthy
   
   proxy_server:
-    image: ${CI_REGISTRY_IMAGE}/apache:${CI_COMMIT_REF_SLUG}
-    restart: always
+    image: nginx:latest
     container_name: proxy_server
     env_file:
       - .env
-    networks:
-      - proxy_network
     volumes:
-      - /etc/letsencrypt:/etc/letsencrypt:ro
-      - ./apache/httpd.conf:/usr/local/apache2/conf/httpd.conf
-      - ./apache/httpd-vhosts.conf:/usr/local/apache2/conf/extra/httpd-vhosts.conf
-      - static_content:/usr/local/apache2/htdocs/static:ro
+      - ./nginx/nginx.conf.template:/etc/nginx/templates/default.conf.template:ro 
+      - /etc/letsencrypt:/etc/nginx/ssl:ro
     ports:
       - "80:80"
       - "443:443"
     depends_on:
-      site:
+      frontend:
         condition: service_healthy
+    networks:
+      - proxy_network
 
 networks:
   site_network:
