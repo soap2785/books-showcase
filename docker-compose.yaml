@@ -58,7 +58,7 @@ services:
       retries: 3
       start_period: 20s
     depends_on:
-      backend:
+      api:
         condition: service_healthy
   
   proxy_server:

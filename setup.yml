@@ -36,7 +36,7 @@
           become: yes
 
     - name: Pull images from Registry
-      command: docker compose -f src/docker-compose.yaml pull
+      command: docker compose -f docker-compose.yaml pull
       args:
         chdir: "{{ project_root }}"
       environment:
@@ -47,7 +47,7 @@
       community.docker.docker_compose_v2:
         project_src: "{{ project_root }}"
         files:
-          - "src/docker-compose.yaml"
+          - "docker-compose.yaml"
         state: present
         recreate: always
         remove_orphans: true
