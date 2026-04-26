@@ -4,6 +4,8 @@ env/
 venv/
 .venv
 
+infra-repo/
+.ruff_cache
 __pycache__/
 .vscode/
 logs/

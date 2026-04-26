@@ -1,0 +1,57 @@
+- name: Deploy Services
+  hosts: all
+  gather_facts: yes
+  become: true
+  tasks:
+    - name: Docker Compose file copying
+      block:
+        - name: Ensure destination directory exists
+          file:
+            path: "{{ project_root }}"
+            state: directory
+            mode: '0755'
+          become: yes
+
+        - name: Clone repository
+          ansible.builtin.git:
+            repo: "https://gitlab-ci-token:{{ lookup('env', 'CI_JOB_TOKEN') }}@{{ lookup('env', 'CI_SERVER_HOST') }}/{{ lookup('env', 'CI_PROJECT_PATH') }}.git"
+            dest: "{{ project_root }}"
+            version: "{{ lookup('env', 'BRANCH') }}"
+            single_branch: yes
+            force: yes
+
+    - name: .env creation
+      block:
+        - name: Read secret env file from runner
+          set_fact:
+            secret_env_content: "{{ lookup('file', ENV_FILE) }}"
+
+        - name: Generate final .env on server
+          template:
+            src: templates/env.j2
+            dest: "{{ project_root }}/.env"
+            mode: '0644'
+          vars:
+            ENV_FILE_CONTENT: "{{ secret_env_content }}" 
+          become: yes
+
+    - name: Pull images from Registry
+      command: docker compose -f {{ compose_file }} pull
+      args:
+        chdir: "{{ project_root }}"
+      environment:
+        CI_REGISTRY_IMAGE: "{{ lookup('env', 'CI_REGISTRY_IMAGE') }}"
+        CI_COMMIT_REF_SLUG: "{{ lookup('env', 'CI_COMMIT_REF_SLUG') }}"
+
+    - name: Deploy with Docker Compose
+      community.docker.docker_compose_v2:
+        project_src: "{{ project_root }}"
+        files:
+          - "{{ compose_file }}"
+        state: present
+        recreate: always
+        remove_orphans: true
+        build: never
+      environment:
+        CI_REGISTRY_IMAGE: "{{ lookup('env', 'CI_REGISTRY_IMAGE') }}"
+        CI_COMMIT_REF_SLUG: "{{ lookup('env', 'CI_COMMIT_REF_SLUG') }}"
