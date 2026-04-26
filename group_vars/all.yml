@@ -1,3 +1,5 @@
 ---
+project_root: "/opt/{{ inventory_hostname }}"
+CI_PROJECT_PATH: "soap2785/books-showcase"
 cert_email: "ultramarinow@gmail.com"
 domain: "testovoe.docreporttestnet.ru"

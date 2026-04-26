@@ -83,6 +83,10 @@ jobs:
         env:
           ANSIBLE_CONFIG: ansible.cfg
 
+      - name: Extract branch name
+        shell: bash
+        run: echo "BRANCH_NAME=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_ENV
+
       - name: Setup Service
         uses: dawidd6/action-ansible-playbook@v2
         with:
@@ -92,6 +96,9 @@ jobs:
             --inventory inventory.ini
         env:
           ANSIBLE_CONFIG: ansible.cfg
+          CURRENT_BRANCH: ${{ env.BRANCH_NAME }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
 
       - name: Manage Migrations
         uses: dawidd6/action-ansible-playbook@v2

@@ -14,9 +14,9 @@
 
         - name: Clone repository
           ansible.builtin.git:
-            repo: "https://gitlab-ci-token:{{ lookup('env', 'CI_JOB_TOKEN') }}@{{ lookup('env', 'CI_SERVER_HOST') }}/{{ lookup('env', 'CI_PROJECT_PATH') }}.git"
+            repo: "https://x-access-token:{{ lookup('env', 'GITHUB_TOKEN') }}@://github.com{{ lookup('env', 'GITHUB_REPOSITORY') }}.git"
             dest: "{{ project_root }}"
-            version: "{{ lookup('env', 'BRANCH') }}"
+            version: "{{ lookup('env', 'CURRENT_BRANCH') }}"
             single_branch: yes
             force: yes
 
