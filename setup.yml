@@ -22,21 +22,21 @@
 
     - name: .env creation
       block:
-        - name: Read secret env file from runner
-          set_fact:
-            secret_env_content: "{{ lookup('env', ENV_FILE) }}"
+        # - name: Read secret env file from runner
+        #   set_fact:
+        #     secret_env_content: "{{ lookup('env', ENV_FILE) }}"
 
         - name: Generate final .env on server
           template:
             src: templates/env.j2
             dest: "{{ project_root }}/.env"
             mode: '0644'
-          vars:
-            ENV_FILE_CONTENT: "{{ secret_env_content }}" 
+          # vars:
+          #   ENV_FILE_CONTENT: "{{ secret_env_content }}" 
           become: yes
 
     - name: Pull images from Registry
-      command: docker compose -f {{ compose_file }} pull
+      command: docker compose -f src/docker-compose.yaml pull
       args:
         chdir: "{{ project_root }}"
       environment:
@@ -47,7 +47,7 @@
       community.docker.docker_compose_v2:
         project_src: "{{ project_root }}"
         files:
-          - "{{ compose_file }}"
+          - "src/docker-compose.yaml"
         state: present
         recreate: always
         remove_orphans: true

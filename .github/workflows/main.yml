@@ -106,7 +106,6 @@ jobs:
           CURRENT_BRANCH: ${{ env.BRANCH_NAME }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_REPOSITORY: ${{ github.repository }}
-          ENV_FILE: ${{ secrets.ENV }}
 
       - name: Manage Migrations
         uses: dawidd6/action-ansible-playbook@v2
