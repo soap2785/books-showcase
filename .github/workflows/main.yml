@@ -74,7 +74,6 @@ jobs:
           options: |
             --inventory inventory.ini
             --limit ${{ env.LIMIT_TARGET }}
-            --limit ${{ env.LIMIT_TARGET }}
         env:
           ANSIBLE_CONFIG: ansible.cfg
 
@@ -106,6 +105,8 @@ jobs:
           CURRENT_BRANCH: ${{ env.BRANCH_NAME }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_REPOSITORY: ${{ github.repository }}
+          BACKEND_IMAGE: "ghcr.io/{{ github_repository }}/backend:{{ github_sha }}"
+          FRONTEND_IMAGE: "ghcr.io/{{ github_repository }}/frontend:{{ github_sha }}"
 
       - name: Manage Migrations
         uses: dawidd6/action-ansible-playbook@v2

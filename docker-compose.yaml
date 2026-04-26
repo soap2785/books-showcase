@@ -1,6 +1,6 @@
 services:
   api:
-    image: ${CI_REGISTRY_IMAGE}/backend:${CI_COMMIT_REF_SLUG}
+    image: ${BACKEND_IMAGE}
     restart: always
     container_name: api
     expose:
@@ -41,7 +41,7 @@ services:
       retries: 5
 
   frontend:
-    image: ${CI_REGISTRY_IMAGE}/frontend:${CI_COMMIT_REF_SLUG}
+    image: ${FRONTEND_IMAGE}
     restart: always
     container_name: frontend
     expose:

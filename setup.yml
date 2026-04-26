@@ -40,8 +40,8 @@
       args:
         chdir: "{{ project_root }}"
       environment:
-        CI_REGISTRY_IMAGE: "{{ lookup('env', 'CI_REGISTRY_IMAGE') }}"
-        CI_COMMIT_REF_SLUG: "{{ lookup('env', 'CI_COMMIT_REF_SLUG') }}"
+        BACKEND_IMAGE: "{{ BACKEND_IMAGE }}"
+        FRONTEND_IMAGE: "{{ FRONTEND_IMAGE }}"
 
     - name: Deploy with Docker Compose
       community.docker.docker_compose_v2:
@@ -53,5 +53,5 @@
         remove_orphans: true
         build: never
       environment:
-        CI_REGISTRY_IMAGE: "{{ lookup('env', 'CI_REGISTRY_IMAGE') }}"
-        CI_COMMIT_REF_SLUG: "{{ lookup('env', 'CI_COMMIT_REF_SLUG') }}"
+        BACKEND_IMAGE: "{{ BACKEND_IMAGE }}"
+        FRONTEND_IMAGE: "{{ FRONTEND_IMAGE }}"
