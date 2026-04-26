@@ -68,7 +68,8 @@ jobs:
         with:
           playbook: system.yml
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          inventory: inventory.ini
+          options: |
+            --inventory inventory.ini
         env:
           ANSIBLE_CONFIG: ansible.cfg
 
@@ -77,7 +78,8 @@ jobs:
         with:
           playbook: certificates.yml
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          inventory: inventory.ini
+          options: |
+            --inventory inventory.ini
         env:
           ANSIBLE_CONFIG: ansible.cfg
 
@@ -86,7 +88,8 @@ jobs:
         with:
           playbook: setup.yml
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          inventory: inventory.ini
+          options: |
+            --inventory inventory.ini
         env:
           ANSIBLE_CONFIG: ansible.cfg
 
@@ -95,6 +98,7 @@ jobs:
         with:
           playbook: migrations.yml
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          inventory: inventory.ini
+          options: |
+            --inventory inventory.ini
         env:
           ANSIBLE_CONFIG: ansible.cfg
