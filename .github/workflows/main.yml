@@ -102,7 +102,7 @@ jobs:
             --limit ${{ env.LIMIT_TARGET }}
             -e "BACKEND_IMAGE=ghcr.io/${{ github.repository }}/backend:${{ github.sha }}"
             -e "FRONTEND_IMAGE=ghcr.io/${{ github.repository }}/frontend:${{ github.sha }}"
-            -e "ENV_FILE=secrets.ENV_FILE"
+            -e "ENV_FILE={{ secrets.ENV_FILE }}"
         env:
           ANSIBLE_CONFIG: ansible.cfg
           CURRENT_BRANCH: ${{ env.BRANCH_NAME }}
