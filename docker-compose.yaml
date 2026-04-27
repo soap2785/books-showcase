@@ -1,6 +1,6 @@
 services:
   api:
-    image: ${CI_REGISTRY_IMAGE}/backend:${CI_COMMIT_REF_SLUG}
+    image: ${BACKEND_IMAGE}
     restart: always
     container_name: api
     expose:
@@ -16,7 +16,7 @@ services:
     command: >
       sh -c "uvicorn app:app --host 0.0.0.0 --port 8000 --workers 2"
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/"]
+      test: ["CMD", "curl", "-f", "http://localhost:8000/deployment/healthcheck"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -41,7 +41,7 @@ services:
       retries: 5
 
   frontend:
-    image: ${CI_REGISTRY_IMAGE}/frontend:${CI_COMMIT_REF_SLUG}
+    image: ${FRONTEND_IMAGE}
     restart: always
     container_name: frontend
     expose:
@@ -58,28 +58,25 @@ services:
       retries: 3
       start_period: 20s
     depends_on:
-      backend:
+      api:
         condition: service_healthy
   
   proxy_server:
-    image: ${CI_REGISTRY_IMAGE}/apache:${CI_COMMIT_REF_SLUG}
-    restart: always
+    image: nginx:latest
     container_name: proxy_server
     env_file:
       - .env
-    networks:
-      - proxy_network
     volumes:
-      - /etc/letsencrypt:/etc/letsencrypt:ro
-      - ./apache/httpd.conf:/usr/local/apache2/conf/httpd.conf
-      - ./apache/httpd-vhosts.conf:/usr/local/apache2/conf/extra/httpd-vhosts.conf
-      - static_content:/usr/local/apache2/htdocs/static:ro
+      - ./nginx/nginx.conf.template:/etc/nginx/templates/default.conf.template:ro 
+      - /etc/letsencrypt:/etc/nginx/ssl:ro
     ports:
       - "80:80"
       - "443:443"
     depends_on:
-      site:
+      frontend:
         condition: service_healthy
+    networks:
+      - proxy_network
 
 networks:
   site_network:

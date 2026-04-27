@@ -17,8 +17,7 @@ async def delete_book(book_id: int, db: AsyncSession = Depends(get_db)):
     book = await db.get(Book, book_id)
     if not book:
         raise HTTPException(
-            status.HTTP_404_NOT_FOUND,
-            f"Book with id {book_id} not found"
+            status.HTTP_404_NOT_FOUND, f"Book with id {book_id} not found"
         )
 
     file_path = join("storage/books", book.file)
@@ -29,7 +28,7 @@ async def delete_book(book_id: int, db: AsyncSession = Depends(get_db)):
             rm(file_path)
 
         await db.commit()
-        
+
     except Exception as e:
         await db.rollback()
         raise HTTPException(500, f"Ошибка при удалении: {str(e)}")

@@ -1,0 +1,56 @@
+- name: Deploy Services
+  hosts: all
+  gather_facts: yes
+  become: true
+  tasks:
+    - name: Docker Compose file copying
+      block:
+        - name: Ensure destination directory exists
+          file:
+            path: "{{ project_root }}"
+            state: directory
+            mode: '0755'
+          become: yes
+
+        - name: Clone repository
+          ansible.builtin.git:
+            repo: "https://x-access-token:{{ lookup('env', 'GITHUB_TOKEN') }}@github.com/{{ lookup('env', 'GITHUB_REPOSITORY') }}.git"
+            dest: "{{ project_root }}"
+            version: "{{ lookup('env', 'CURRENT_BRANCH') }}"
+            single_branch: yes
+            force: yes
+
+    - name: .env creation
+      block:
+        - name: Generate final .env on server
+          template:
+            src: templates/env.j2
+            dest: "{{ project_root }}/.env"
+            mode: '0644'
+          vars:
+            ENV_FILE_CONTENT: "{{ ENV_FILE }}" 
+          become: yes
+
+    - name: Pull images from Registry
+      community.docker.docker_compose_v2:
+        project_src: "{{ project_root }}"
+        files:
+          - docker-compose.yaml
+        pull: always
+        state: present
+      environment:
+        BACKEND_IMAGE: "{{ BACKEND_IMAGE }}"
+        FRONTEND_IMAGE: "{{ FRONTEND_IMAGE }}"
+
+    - name: Deploy with Docker Compose
+      community.docker.docker_compose_v2:
+        project_src: "{{ project_root }}"
+        files:
+          - "docker-compose.yaml"
+        state: present
+        recreate: always
+        remove_orphans: true
+        build: never
+      environment:
+        BACKEND_IMAGE: "{{ lookup('env', 'BACKEND_IMAGE') }}"
+        FRONTEND_IMAGE: "{{ lookup('env', 'FRONTEND_IMAGE') }}"

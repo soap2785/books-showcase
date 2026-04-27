@@ -16,9 +16,7 @@ from . import books_router
 
 @books_router.patch("/{book_id}")
 async def patch_book(
-    book_id: int,
-    request: EditBook,
-    db: AsyncSession = Depends(get_db)
+    book_id: int, request: EditBook, db: AsyncSession = Depends(get_db)
 ):
     book = await db.get(Book, book_id)
     if not book:

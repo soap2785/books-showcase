@@ -11,7 +11,9 @@ from . import authors_router
 
 
 @authors_router.post("/{user_id}", response_model=dict)
-async def create_author(user_id: int, request: CreateAuthor, db: AsyncSession = Depends(get_db)):
+async def create_author(
+    user_id: int, request: CreateAuthor, db: AsyncSession = Depends(get_db)
+):
     user = await db.get(User, user_id)
     if not user:
         raise HTTPException(

@@ -1,8 +1,12 @@
 name: CI/CD Pipeline
 
+permissions:
+  contents: read
+  packages: write
+
 on:
   push:
-    branches: [ staging ]
+    branches: [ main, staging ]
   pull_request:
     branches: [ staging ]
 
@@ -42,47 +46,76 @@ jobs:
       - name: Build and push Backend
         uses: docker/build-push-action@v5
         with:
-          context: ./backend
+          context: ./src/backend
           push: true
           tags: ghcr.io/${{ github.repository }}/backend:${{ github.sha }}
 
       - name: Build and push Frontend
         uses: docker/build-push-action@v5
         with:
-          context: ./frontend
+          context: ./src/frontend
           push: true
           tags: ghcr.io/${{ github.repository }}/frontend:${{ github.sha }}
 
   deploy:
     needs: build
     runs-on: ubuntu-latest
+    env:
+      LIMIT_TARGET: ${{ github.ref_name == 'main' && 'api_prod' || 'api_test' }}
+
     steps:
       - uses: actions/checkout@v4
-
-      - name: Prepare Docker
-        uses: dawidd6/action-ansible-playbook@v2
-        with:
-          playbook: ansible/docker.yml
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          inventory: ${{ secrets.ANSIBLE_INVENTORY }}
 
       - name: Prepare System
         uses: dawidd6/action-ansible-playbook@v2
         with:
-          playbook: ansible/system.yml
+          playbook: system.yml
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          inventory: ${{ secrets.ANSIBLE_INVENTORY }}
-      
+          options: |
+            --inventory inventory.ini
+            --limit ${{ env.LIMIT_TARGET }}
+        env:
+          ANSIBLE_CONFIG: ansible.cfg
+
       - name: Create Certificates
         uses: dawidd6/action-ansible-playbook@v2
         with:
-          playbook: ansible/certificates.yml
+          playbook: certificates.yml
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          inventory: ${{ secrets.ANSIBLE_INVENTORY }}
+          options: |
+            --inventory inventory.ini
+            --limit ${{ env.LIMIT_TARGET }}
+        env:
+          ANSIBLE_CONFIG: ansible.cfg
+
+      - name: Extract branch name
+        shell: bash
+        run: echo "BRANCH_NAME=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_ENV
+
+      - name: Setup Service
+        uses: dawidd6/action-ansible-playbook@v2
+        with:
+          playbook: setup.yml
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          options: |
+            --inventory inventory.ini
+            --limit ${{ env.LIMIT_TARGET }}
+            -e "BACKEND_IMAGE=ghcr.io/${{ github.repository }}/backend:${{ github.sha }}"
+            -e "FRONTEND_IMAGE=ghcr.io/${{ github.repository }}/frontend:${{ github.sha }}"
+            -e "ENV_FILE=${{ secrets.ENV_FILE }}"
+        env:
+          ANSIBLE_CONFIG: ansible.cfg
+          CURRENT_BRANCH: ${{ env.BRANCH_NAME }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
 
       - name: Manage Migrations
         uses: dawidd6/action-ansible-playbook@v2
         with:
-          playbook: ansible/migrations.yml
+          playbook: migrations.yml
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          inventory: ${{ secrets.ANSIBLE_INVENTORY }}
+          options: |
+            --inventory inventory.ini
+            --limit ${{ env.LIMIT_TARGET }}
+        env:
+          ANSIBLE_CONFIG: ansible.cfg

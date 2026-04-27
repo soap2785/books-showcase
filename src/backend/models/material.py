@@ -11,9 +11,7 @@ class Material(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     author_rel: Mapped["Author"] = relationship(back_populates="published_books")
     rating: Mapped[float] = mapped_column(
-        Float, 
-        CheckConstraint("rating >= 0 AND rating <= 5"), 
-        default=0.0
+        Float, CheckConstraint("rating >= 0 AND rating <= 5"), default=0.0
     )
     title: Mapped[str] = mapped_column(String(30))
     description: Mapped[str] = mapped_column(String(700))

@@ -1,3 +1,3 @@
 from fastapi import APIRouter
 
-authors_router = APIRouter("/authors")
+authors_router = APIRouter(prefix="/authors")
