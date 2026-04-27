@@ -98,9 +98,9 @@ jobs:
           playbook: setup.yml
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           options: |
-            --inventory inventory.ini
-            --limit ${{ env.LIMIT_TARGET }}
-            -e "BACKEND_IMAGE=ghcr.io/${{ github.repository }}/backend:${{ github.sha }}"
+            --inventory inventory.ini \
+            --limit ${{ env.LIMIT_TARGET }} \
+            -e "BACKEND_IMAGE=ghcr.io/${{ github.repository }}/backend:${{ github.sha }}" \
             -e "FRONTEND_IMAGE=ghcr.io/${{ github.repository }}/frontend:${{ github.sha }}"
         env:
           ANSIBLE_CONFIG: ansible.cfg
