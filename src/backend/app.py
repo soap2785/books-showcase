@@ -10,3 +10,7 @@ app.include_router(deployment_router)
 app.include_router(audiobooks_router)
 app.include_router(authors_router)
 app.include_router(books_router)
+
+
+for route in app.routes:
+    print(f"Path: {route.path} | Name: {route.name}")
