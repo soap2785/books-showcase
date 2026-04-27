@@ -36,12 +36,15 @@
           become: yes
 
     - name: Pull images from Registry
-      command: docker compose -f docker-compose.yaml pull
-      args:
-        chdir: "{{ project_root }}"
+      community.docker.docker_compose_v2:
+        project_src: "{{ project_root }}"
+        files:
+          - docker-compose.yaml
+        pull: always
+        state: present
       environment:
-        BACKEND_IMAGE: "{{ lookup('env', 'BACKEND_IMAGE') }}"
-        FRONTEND_IMAGE: "{{ lookup('env', 'FRONTEND_IMAGE') }}"
+        BACKEND_IMAGE: "{{ BACKEND_IMAGE }}"
+        FRONTEND_IMAGE: "{{ FRONTEND_IMAGE }}"
 
     - name: Deploy with Docker Compose
       community.docker.docker_compose_v2:
