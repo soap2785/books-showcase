@@ -1,4 +1,4 @@
-from fastapi import status, Depends
+from fastapi import status, Depends, APIRouter
 from fastapi.exceptions import HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
@@ -7,10 +7,10 @@ from sqlalchemy import select
 from models.author import Author
 from db.database import get_db
 
-from . import audiobooks_router
+router = APIRouter()
 
 
-@audiobooks_router.get("/{author_id}", response_model=list)
+@router.get("/{author_id}", response_model=list)
 async def get_audiobooks(author_id: int, db: AsyncSession = Depends(get_db)):
     query = (
         select(Author)

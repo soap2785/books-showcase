@@ -1,4 +1,4 @@
-from fastapi import status, Depends
+from fastapi import status, Depends, APIRouter
 from fastapi.exceptions import HTTPException
 from fastapi.responses import JSONResponse
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -6,10 +6,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from models.author import Author
 from db.database import get_db
 
-from . import authors_router
+router = APIRouter()
 
 
-@authors_router.delete("/{author_id}", response_model=dict)
+@router.delete("/{author_id}", response_model=dict)
 async def delete_author(author_id: int, db: AsyncSession = Depends(get_db)):
     author = await db.get(Author, author_id)
     if not author:

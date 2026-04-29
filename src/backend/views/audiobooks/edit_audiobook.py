@@ -3,7 +3,7 @@ from os import remove as rm
 from uuid import uuid4
 
 from aiofiles import open
-from fastapi import Depends
+from fastapi import Depends, APIRouter
 from fastapi.exceptions import HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -11,10 +11,10 @@ from models.audiobook import Audiobook
 from db.database import get_db
 from schemas.audiobook import EditAudiobook
 
-from . import audiobooks_router
+router = APIRouter()
 
 
-@audiobooks_router.patch("/{audiobook_id}")
+@router.patch("/{audiobook_id}")
 async def patch_audiobook(
     audiobook_id: int, request: EditAudiobook, db: AsyncSession = Depends(get_db)
 ):

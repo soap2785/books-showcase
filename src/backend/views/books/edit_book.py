@@ -3,7 +3,7 @@ from os import remove as rm
 from uuid import uuid4
 
 from aiofiles import open
-from fastapi import Depends
+from fastapi import Depends, APIRouter
 from fastapi.exceptions import HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -11,10 +11,10 @@ from models.book import Book
 from db.database import get_db
 from schemas.book import EditBook
 
-from . import books_router
+router = APIRouter()
 
 
-@books_router.patch("/{book_id}")
+@router.patch("/{book_id}")
 async def patch_book(
     book_id: int, request: EditBook, db: AsyncSession = Depends(get_db)
 ):

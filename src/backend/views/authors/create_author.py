@@ -1,4 +1,4 @@
-from fastapi import status, Depends
+from fastapi import status, Depends, APIRouter
 from fastapi.exceptions import HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -7,10 +7,10 @@ from models.user import User
 from db.database import get_db
 from schemas.author import CreateAuthor
 
-from . import authors_router
+router = APIRouter()
 
 
-@authors_router.post("/{user_id}", response_model=dict)
+@router.post("/{user_id}", response_model=dict)
 async def create_author(
     user_id: int, request: CreateAuthor, db: AsyncSession = Depends(get_db)
 ):
