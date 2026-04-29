@@ -13,4 +13,4 @@ app.include_router(books_router)
 
 
 for route in app.routes:
-    print(f"Path: {route.path} | Name: {route.name}")
+    print(f"Path: {route.path} | Name: {route.name}", flush=True)
