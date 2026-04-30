@@ -12,13 +12,14 @@
             mode: '0755'
           become: yes
 
-        - name: Clone repository
-          ansible.builtin.git:
-            repo: "https://x-access-token:{{ lookup('env', 'GITHUB_TOKEN') }}@github.com/{{ lookup('env', 'GITHUB_REPOSITORY') }}.git"
-            dest: "{{ project_root }}"
-            version: "{{ lookup('env', 'CURRENT_BRANCH') }}"
-            single_branch: yes
-            force: yes
+    - name: Sync repository to specific SHA
+      ansible.builtin.git:
+        repo: "https://x-access-token:{{ lookup('env', 'GITHUB_TOKEN') }}@github.com/{{ lookup('env', 'GITHUB_REPOSITORY') }}.git"
+        dest: "{{ project_root }}"
+        version: "{{ lookup('env', 'GITHUB_SHA') }}"
+        refspec: "+{{ lookup('env', 'GITHUB_SHA') }}:refs/remotes/origin/current_commit"
+        update: yes
+        force: yes 
 
     - name: .env creation
       block:
@@ -31,6 +32,13 @@
             ENV_FILE_CONTENT: "{{ ENV_FILE }}" 
           become: yes
 
+    - name: Log into GitHub Container Registry
+      community.docker.docker_login:
+        registry: ghcr.io
+        username: "soap2785"
+        password: "{{ lookup('env', 'GITHUB_TOKEN') }}"
+      no_log: true
+
     - name: Pull images from Registry
       community.docker.docker_compose_v2:
         project_src: "{{ project_root }}"
@@ -41,6 +49,10 @@
       environment:
         BACKEND_IMAGE: "{{ BACKEND_IMAGE }}"
         FRONTEND_IMAGE: "{{ FRONTEND_IMAGE }}"
+      register: pull_result
+      until: pull_result is succeeded
+      retries: 3
+      delay: 15
 
     - name: Deploy with Docker Compose
       community.docker.docker_compose_v2:

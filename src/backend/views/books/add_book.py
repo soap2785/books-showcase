@@ -2,7 +2,7 @@ from uuid import uuid4
 from os.path import join
 
 from aiofiles import open
-from fastapi import status, Depends
+from fastapi import status, Depends, APIRouter
 from fastapi.exceptions import HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -11,10 +11,10 @@ from models.author import Author
 from db.database import get_db
 from schemas.book import AddBook
 
-from . import books_router
+router = APIRouter()
 
 
-@books_router.post("", response_model=dict)
+@router.post("", response_model=dict)
 async def add_book(request: AddBook, db: AsyncSession = Depends(get_db)):
     author = await db.get(Author, request.author)
     if not author:

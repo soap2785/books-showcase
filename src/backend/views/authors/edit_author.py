@@ -1,4 +1,4 @@
-from fastapi import Depends
+from fastapi import Depends, APIRouter
 from fastapi.exceptions import HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -6,10 +6,10 @@ from models.author import Author
 from db.database import get_db
 from schemas.audiobook import EditAudiobook
 
-from . import authors_router
+router = APIRouter()
 
 
-@authors_router.patch("/{author_id}")
+@router.patch("/{author_id}")
 async def patch_author(
     author_id: int, request: EditAudiobook, db: AsyncSession = Depends(get_db)
 ):

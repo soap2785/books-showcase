@@ -1,8 +1,8 @@
-from fastapi import Request
+from fastapi import Request, APIRouter
 
-from . import deployment_router
+router = APIRouter()
 
 
-@deployment_router.get("/healthcheck")
+@router.get("/healthcheck")
 async def healthcheck(request: Request):
     return 200

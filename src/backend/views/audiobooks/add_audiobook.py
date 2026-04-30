@@ -2,7 +2,7 @@ from os.path import join
 from uuid import uuid4
 
 from aiofiles import open
-from fastapi import status, Depends
+from fastapi import status, Depends, APIRouter
 from fastapi.exceptions import HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -11,10 +11,10 @@ from models.author import Author
 from db.database import get_db
 from schemas.audiobook import AddAudiobook
 
-from . import audiobooks_router
+router = APIRouter()
 
 
-@audiobooks_router.post("", response_model=dict)
+@router.post("", response_model=dict)
 async def add_audiobook(request: AddAudiobook, db: AsyncSession = Depends(get_db)):
     author = await db.get(Author, request.author)
     if not author:

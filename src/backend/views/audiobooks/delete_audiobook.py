@@ -1,7 +1,7 @@
 from os.path import join, exists
 from os import remove as rm
 
-from fastapi import status, Depends
+from fastapi import status, Depends, APIRouter
 from fastapi.exceptions import HTTPException
 from fastapi.responses import JSONResponse
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -9,10 +9,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from db.database import get_db
 from models.audiobook import Audiobook
 
-from . import audiobooks_router
+router = APIRouter()
 
 
-@audiobooks_router.delete("/{audiobook_id}")
+@router.delete("/{audiobook_id}")
 async def delete_audiobook(audiobook_id: int, db: AsyncSession = Depends(get_db)):
     audiobook = await db.get(Audiobook, audiobook_id)
     if not audiobook:

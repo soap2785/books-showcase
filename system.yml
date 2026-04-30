@@ -6,6 +6,10 @@
       apt:
         update_cache: yes
         upgrade: dist
+      register: result
+      until: result is success
+      retries: 5
+      delay: 10
 
     - name: Install required packages
       apt:
