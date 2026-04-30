@@ -17,8 +17,9 @@
             repo: "https://x-access-token:{{ lookup('env', 'GITHUB_TOKEN') }}@github.com/{{ lookup('env', 'GITHUB_REPOSITORY') }}.git"
             dest: "{{ project_root }}"
             version: "{{ lookup('env', 'GITHUB_SHA') }}"
-            single_branch: yes
+            update: yes
             force: yes
+            single_branch: no  
 
     - name: .env creation
       block:
