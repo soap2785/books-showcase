@@ -12,6 +12,12 @@
             mode: '0755'
           become: yes
 
+        - name: Fetch all history
+          ansible.builtin.command:
+            cmd: git fetch --all
+            chdir: "{{ project_root }}"
+          ignore_errors: yes
+
         - name: Clone repository
           ansible.builtin.git:
             repo: "https://x-access-token:{{ lookup('env', 'GITHUB_TOKEN') }}@github.com/{{ lookup('env', 'GITHUB_REPOSITORY') }}.git"
