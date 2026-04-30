@@ -32,6 +32,13 @@
             ENV_FILE_CONTENT: "{{ ENV_FILE }}" 
           become: yes
 
+    - name: Log into GitHub Container Registry
+      community.docker.docker_login:
+        registry: ghcr.io
+        username: "soap2785"
+        password: "{{ lookup('env', 'GITHUB_TOKEN') }}"
+      no_log: true
+
     - name: Pull images from Registry
       community.docker.docker_compose_v2:
         project_src: "{{ project_root }}"
