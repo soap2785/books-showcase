@@ -49,6 +49,10 @@
       environment:
         BACKEND_IMAGE: "{{ BACKEND_IMAGE }}"
         FRONTEND_IMAGE: "{{ FRONTEND_IMAGE }}"
+      register: pull_result
+      until: pull_result is succeeded
+      retries: 3
+      delay: 15
 
     - name: Deploy with Docker Compose
       community.docker.docker_compose_v2:
