@@ -12,20 +12,14 @@
             mode: '0755'
           become: yes
 
-        - name: Fetch all history
-          ansible.builtin.command:
-            cmd: git fetch origin {{ lookup('env', 'GITHUB_SHA') }}
-            chdir: "{{ project_root }}"
-          ignore_errors: yes
-
-        - name: Clone repository
-          ansible.builtin.git:
-            repo: "https://x-access-token:{{ lookup('env', 'GITHUB_TOKEN') }}@github.com/{{ lookup('env', 'GITHUB_REPOSITORY') }}.git"
-            dest: "{{ project_root }}"
-            version: "{{ lookup('env', 'GITHUB_SHA') }}"
-            update: yes
-            force: yes
-            single_branch: no  
+    - name: Sync repository to specific SHA
+      ansible.builtin.git:
+        repo: "https://x-access-token:{{ lookup('env', 'GITHUB_TOKEN') }}@github.com/{{ lookup('env', 'GITHUB_REPOSITORY') }}.git"
+        dest: "{{ project_root }}"
+        version: "{{ lookup('env', 'GITHUB_SHA') }}"
+        refspec: "+{{ lookup('env', 'GITHUB_SHA') }}:refs/remotes/origin/current_commit"
+        update: yes
+        force: yes 
 
     - name: .env creation
       block:
