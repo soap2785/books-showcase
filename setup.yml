@@ -14,7 +14,7 @@
 
         - name: Fetch all history
           ansible.builtin.command:
-            cmd: git fetch --all
+            cmd: git fetch origin {{ lookup('env', 'GITHUB_SHA') }}
             chdir: "{{ project_root }}"
           ignore_errors: yes
 
